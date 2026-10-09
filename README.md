@@ -215,8 +215,8 @@ The certificate is rendered programmatically using ReportLab in A4 Landscape mod
 
 ```bash
 # Clone the repository
-git clone https://github.com/gokul27108/bulk-certificate-generator-api.git
-cd bulk-certificate-generator-api
+git clone https://github.com/gokul27108/bulk-certificate-generator-api-.git
+cd bulk-certificate-generator-api-
 
 # Spin up PostgreSQL + FastAPI with a single command
 docker compose up --build
@@ -461,4 +461,4 @@ bulk-certificate-generator-api/
 ## 👨‍💻 Author & Repository
 
 - **Author**: Gokul M
-- **Repository**: [https://github.com/gokul27108/bulk-certificate-generator-api](https://github.com/gokul27108/bulk-certificate-generator-api)
+- **Repository**: [https://github.com/gokul27108/bulk-certificate-generator-api-](https://github.com/gokul27108/bulk-certificate-generator-api-)
