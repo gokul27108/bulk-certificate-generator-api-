@@ -1,202 +1,237 @@
+<div align="center">
+
 # 🎓 Bulk Certificate Generator API
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.12%2B-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12" />
-  <img src="https://img.shields.io/badge/FastAPI-0.115%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/SQLAlchemy-2.0-red?style=for-the-badge&logo=sqlalchemy&logoColor=white" alt="SQLAlchemy" />
-  <img src="https://img.shields.io/badge/Pydantic-v2-E92063?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic v2" />
-  <img src="https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
-  <img src="https://img.shields.io/badge/Tests-Passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white" alt="Pytest" />
-</p>
+### *High-Throughput Asynchronous PDF Generation Engine with Resilient Failure Isolation*
 
-A production-grade, asynchronous REST API engineered to generate bulk PDF certificates with enterprise-grade **failure isolation**, background job scheduling, real-time progress tracking, and secure document retrieval.
+[![Python Version](https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
+[![Pydantic](https://img.shields.io/badge/Pydantic-v2-E92063?style=for-the-badge&logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
+[![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Pytest Tests](https://img.shields.io/badge/Tests-52%20Passed-2EA44F?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org/)
+[![Coverage](https://img.shields.io/badge/Coverage-92%25-brightgreen?style=for-the-badge&logo=codecov&logoColor=white)](https://pytest.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
----
+<br/>
 
-## 📌 Table of Contents
-- [Overview](#-overview)
-- [Problem Statement](#-problem-statement)
-- [Key Features](#-key-features)
-- [Architecture & Workflow](#-architecture--workflow)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Prerequisites](#-prerequisites)
-- [Local Setup](#-local-setup)
-- [Environment Variables](#-environment-variables)
-- [Database Setup & Migrations](#-database-setup--migrations)
-- [Running Locally](#-running-locally)
-- [Running with Docker](#-running-with-docker)
-- [Interactive API Documentation (Swagger)](#-interactive-api-documentation-swagger)
-- [API Endpoints](#-api-endpoints)
-- [Example Request & Response](#-example-request--response)
-- [Certificate Retrieval](#-certificate-retrieval)
-- [Bulk Processing Mechanism](#-bulk-processing-mechanism)
-- [Failure Handling & Isolation](#-failure-handling--isolation)
-- [Key Architectural Decisions](#-key-architectural-decisions)
-- [Testing & Coverage](#-testing--coverage)
-- [Assumptions](#-assumptions)
-- [Future Improvements](#-future-improvements)
+**[Explore Swagger UI](http://localhost:8000/docs) • [View Endpoints](#-api-endpoints) • [Quickstart Guide](#-quick-start) • [Interview Guide](INTERVIEW_PREPARATION.md) • [Checklist](REQUIREMENTS_CHECKLIST.md)**
 
 ---
 
-## 📖 Overview
-The **Bulk Certificate Generator API** provides a resilient backend service for institutions, bootcamps, and organizations that need to issue verified completion certificates to hundreds or thousands of participants simultaneously. 
+</div>
 
-Instead of freezing the HTTP connection while generating high-resolution PDF documents, the system adopts an asynchronous **Job Pattern** (`HTTP 202 Accepted`), processing batches in the background while allowing clients to monitor generation progress and download certificates on demand.
+## 📌 Executive Summary
 
----
+The **Bulk Certificate Generator API** is an enterprise-grade backend service built with **FastAPI**, **PostgreSQL**, **SQLAlchemy 2.0**, and **ReportLab**. Designed for universities, edtech platforms, and corporate training programs, it issues verified, publication-grade PDF certificates at scale without freezing client HTTP connections.
 
-## ❗ Problem Statement
-When generating hundreds of PDF certificates sequentially during a standard synchronous HTTP request:
-1. **HTTP Timeouts**: Gateway proxies (Nginx, Cloudflare, AWS ALB) terminate requests after 30–60 seconds, causing client failures.
-2. **Cascading Failures**: A single malformed name, unsupported character, or memory hiccup often crashes the entire script, leaving all subsequent recipients without certificates.
-3. **Resource Starvation**: PDF compilation is CPU- and I/O-intensive; running it inside web workers locks server resources from answering other API requests.
-
-The **Bulk Certificate Generator API** directly solves these challenges through asynchronous offloading, atomic database updates, and recipient-level failure isolation.
+It replaces slow, blocking scripts with an asynchronous **HTTP 202 Job Pattern** and enforces **Failure Isolation**: a corrupt record or localized rendering error on one recipient will **never** interrupt or cancel the generation of valid certificates in the batch.
 
 ---
 
-## ✨ Key Features
-- **🚀 Asynchronous Bulk Processing**: Instantaneous HTTP 202 response with job tracking ID.
-- **🛡️ Fault-Tolerant Failure Isolation**: If recipient #45 encounters an error, recipients #46–100 continue generating without interruption.
-- **📊 Granular Progress Tracking**: Live progress percentage, counts (`total`, `completed`, `failed`), and state visibility per recipient.
-- **📜 Professional PDF Engine**: High-fidelity ReportLab template featuring dual navy/gold borders, ornamental accents, and clean typography.
-- **🔒 Path-Traversal & Injection Defense**: System-generated UUID filenames (`certificate_<uuid>.pdf`) and parameterized SQLAlchemy queries.
-- **🧪 Comprehensive Test Suite**: 40+ unit and integration tests covering positive flows, boundary validation, failure isolation, and PDF byte verification.
-- **🐳 Dockerized Out-of-the-Box**: Complete `Dockerfile` and `docker-compose.yml` with healthchecked PostgreSQL.
+## 🌟 Key Highlights & Engineering Features
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                ARCHITECTURAL HIGHLIGHTS                                │
+├─────────────────────────┬─────────────────────────────┬────────────────────────────────┤
+│ 🚀 202 Asynchronous Job │ 🛡️ Failure Isolation       │ 📜 ReportLab Vector Canvas    │
+│ Instant UUID response   │ Bad records isolated;       │ Millimeter-precise landscape   │
+│ non-blocking workers    │ valid siblings proceed 100% │ dual-border certificate design │
+├─────────────────────────┼─────────────────────────────┼────────────────────────────────┤
+│ 🧪 92% Test Coverage    │ 🔒 Strict Security          │ 🐳 Full Containerization       │
+│ 52 automated tests with │ Parameterized SQL & UUID    │ Multi-container Docker Compose │
+│ in-memory SQLite harness│ filenames prevent exploits  │ with healthy PostgreSQL probe  │
+└─────────────────────────┴─────────────────────────────┴────────────────────────────────┘
+```
+
+- **⚡ Asynchronous Bulk Dispatch**: Submit up to 1,000 recipients in a single payload; receive an instant `HTTP 202 Accepted` response with a job UUID.
+- **🛡️ Individual Failure Isolation**: Unhandled exceptions during single-certificate rendering are trapped, logged, and tracked without halting the queue.
+- **📈 Granular Progress Tracking**: Query real-time completion percentages, success/failure metrics, and per-recipient status arrays.
+- **🎨 Publication-Grade PDF Template**: Rendered using ReportLab with double navy-gold borders, corner ornaments, and dynamic typography.
+- **🛡️ Zero-Trust Security**:
+  - **SQL Injection Immune**: 100% parameterized SQLAlchemy 2.0 ORM queries.
+  - **Path Traversal Immune**: Internal UUID-based storage keys (`certificate_<uuid>.pdf`).
+  - **Sanitized Errors**: Clean JSON payloads prevent stack trace exposure.
+- **📦 Production-Ready Tooling**: Includes Alembic database migrations, Postman collections, Docker Compose, and structured logging.
 
 ---
 
-## 🏛️ Architecture & Workflow
+## 📐 System Architecture & Workflow
 
-### Core User Flow
-```text
-Client Application
-       │
-       │  1. POST /api/v1/jobs (Title, Event, Recipients List)
-       ▼
- FastAPI Router
-       │
-       │  2. Strict Pydantic v2 Validation
-       ▼
- Job Service
-       │  3. Persist Job (PENDING) & Certificates (PENDING) in DB
-       │  4. Return HTTP 202 Accepted { job_id: "uuid" }
-       ▼
- Background Task Worker
-       │
-       ├─► [Recipient 1] ──► Generate PDF ──► SUCCESS (Increment completed)
-       ├─► [Recipient 2] ──► Generate PDF ──► SUCCESS (Increment completed)
-       ├─► [Recipient 3] ──► Bad Data/IO  ──► FAILED  (Isolate error, log, increment failed)
-       └─► [Recipient 4] ──► Generate PDF ──► SUCCESS (Increment completed)
-       │
-       ▼  5. Final Job Status: COMPLETED_WITH_ERRORS
- Client Polling
-       │
-       ├─► GET /api/v1/jobs/{job_id} ────────► Progress: 75% | Status: COMPLETED_WITH_ERRORS
-       └─► GET /api/v1/certificates/{cert_id} ─► Streams PDF (Content-Type: application/pdf)
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as API Client / Frontend
+    participant API as FastAPI Router
+    participant Service as Job Service
+    participant DB as PostgreSQL Database
+    participant Worker as Background Task Runner
+    participant PDF as ReportLab PDF Engine
+    participant FS as Local File Storage
+
+    Client->>API: POST /api/v1/jobs (Title, Event, Recipients List)
+    API->>API: Validate schema via Pydantic v2
+    API->>Service: create_job(request)
+    Service->>DB: Bulk-insert Job (PENDING) & Certificates (PENDING)
+    Service-->>API: JobCreatedResponse (UUID, initial counts)
+    API-->>Client: HTTP 202 Accepted (job_id: uuid)
+    
+    par Background Generation
+        API->>Worker: Schedule process_job_background(job_id)
+        Worker->>DB: Mark Job -> PROCESSING
+        loop For Each Recipient
+            Worker->>PDF: generate_certificate_pdf(...)
+            alt Success
+                PDF->>FS: Save certificate_<uuid>.pdf
+                Worker->>DB: Mark Certificate -> COMPLETED, increment successful_count
+            else Fault / Failure
+                Worker->>DB: Mark Certificate -> FAILED (save error), increment failed_count
+            end
+        end
+        Worker->>DB: Update final Job status (COMPLETED / COMPLETED_WITH_ERRORS)
+    end
+
+    Client->>API: GET /api/v1/jobs/{job_id} (Polling)
+    API->>DB: Fetch job status & certificate array
+    DB-->>API: Return progress metrics
+    API-->>Client: HTTP 200 OK (progress_percentage, status)
+
+    Client->>API: GET /api/v1/certificates/{certificate_id}
+    API->>FS: Stream PDF file
+    FS-->>Client: HTTP 200 OK (Content-Type: application/pdf)
 ```
 
 ---
 
-## 💻 Tech Stack
+## 🔄 State Machine Lifecycle
 
-| Category | Technology | Purpose |
-|---|---|---|
-| **Language** | Python 3.12+ | Modern syntax, robust typing, and high efficiency |
-| **Framework** | FastAPI 0.115+ | High-performance ASGI framework with automatic OpenAPI docs |
-| **Server** | Uvicorn 0.30+ | Lightning-fast ASGI web server |
-| **Database** | PostgreSQL 16 | Relational persistence with UUID and Enum support |
-| **ORM** | SQLAlchemy 2.0+ | Modern type-safe data access with QueuePool connection pooling |
-| **Migrations** | Alembic 1.13+ | Automated, version-controlled database schema migrations |
-| **Validation** | Pydantic v2 | High-speed schema validation and serialization |
-| **PDF Rendering** | ReportLab 4.2+ | Programmatic, high-precision vector PDF generation |
-| **Testing** | Pytest & HTTPX | Automated test runner and asynchronous HTTP client |
-| **Containerization** | Docker & Compose | Multi-container environment orchestration |
-
----
-
-## 📁 Project Structure
-
-```text
-bulk-certificate-generator-api/
-├── app/
-│   ├── __init__.py
-│   ├── main.py                     # FastAPI application setup & lifecycle
-│   ├── api/
-│   │   ├── __init__.py
-│   │   └── routes/
-│   │       ├── health.py           # GET /health
-│   │       ├── jobs.py             # POST /api/v1/jobs, GET /api/v1/jobs/{id}
-│   │       └── certificates.py     # GET /api/v1/certificates/{id}
-│   ├── core/
-│   │   ├── config.py               # pydantic-settings configuration
-│   │   ├── database.py             # SQLAlchemy engine & session factory
-│   │   └── logging_config.py       # Formatted structured logging
-│   ├── exceptions/
-│   │   └── handlers.py             # Centralized HTTP exception handlers
-│   ├── models/
-│   │   ├── generation_job.py       # GenerationJob model & JobStatus enum
-│   │   └── certificate.py          # Certificate model & CertificateStatus enum
-│   ├── repositories/
-│   │   ├── job_repository.py       # GenerationJob database CRUD
-│   │   └── certificate_repository.py# Certificate database CRUD & bulk insert
-│   ├── schemas/
-│   │   ├── job.py                  # Pydantic schemas for Job request/response
-│   │   └── certificate.py          # Pydantic schemas for Certificate responses
-│   └── services/
-│       ├── job_service.py          # Background bulk runner & failure isolation
-│       ├── certificate_service.py  # Certificate retrieval logic
-│       └── pdf_service.py          # PDF storage coordination
-├── templates/
-│   └── certificate_template.py     # ReportLab layout, styling & canvas builder
-├── generated_certificates/         # Local PDF storage directory (.gitignore)
-├── tests/
-│   ├── conftest.py                 # Pytest fixtures & isolated in-memory DB
-│   ├── test_create_job.py          # Job creation & 202 acceptance tests
-│   ├── test_validation.py          # Pydantic boundary validation tests (15 cases)
-│   ├── test_certificate_generation.py# PDF generation & byte validation tests
-│   ├── test_job_status.py          # Status polling & percentage calculation tests
-│   ├── test_failure_handling.py    # Failure isolation & error state tests
-│   └── test_certificate_retrieval.py# PDF retrieval & 404/422 handling tests
-├── postman/
-│   └── Bulk-Certificate-Generator.postman_collection.json # Ready-to-import collection
-├── alembic/
-│   ├── env.py                      # Migration environment
-│   └── versions/
-│       └── 001_initial.py          # Initial schema migration
-├── .env.example                    # Environment variable template
-├── .gitignore                      # Git exclusion rules
-├── Dockerfile                      # Production container image
-├── docker-compose.yml              # Multi-container Compose manifest
-├── pyproject.toml                  # Pytest & Coverage configuration
-├── requirements.txt                # Pinned production dependencies
-├── REQUIREMENTS_CHECKLIST.md       # Traceability matrix
-├── INTERVIEW_PREPARATION.md        # 30 comprehensive interview Q&A
-└── README.md                       # Complete documentation
+```
+             ┌─────────────────────────┐
+             │         PENDING         │
+             └────────────┬────────────┘
+                          │ (Worker starts)
+                          ▼
+             ┌─────────────────────────┐
+             │       PROCESSING        │
+             └────────────┬────────────┘
+                          │
+         ┌────────────────┼────────────────┐
+         │ (0 failures)   │ (mixed)        │ (all failed)
+         ▼                ▼                ▼
+┌─────────────────┐ ┌───────────────┐ ┌─────────┐
+│    COMPLETED    │ │COMPLETED_WITH_│ │ FAILED  │
+│                 │ │    ERRORS     │ │         │
+└─────────────────┘ └───────────────┘ └─────────┘
 ```
 
 ---
 
-## ⚙️ Prerequisites
-Ensure you have the following installed:
-- **Python**: `3.12.0` or higher
-- **PostgreSQL**: `14+` (or use Docker)
-- **Git**
-- **Docker & Docker Compose** (optional, recommended for fast deployment)
+## 🎨 Predefined Certificate Template Design
+
+The certificate is rendered programmatically using ReportLab in A4 Landscape mode:
+
+```text
++---------------------------------------------------------------------------------+
+| ############################################################################### |
+| #  +-----------------------------------------------------------------------+  # |
+| #  |                                                                       |  # |
+| #  |                          ORGANIZATION NAME                            |  # |
+| #  |                           PROUDLY PRESENTS                            |  # |
+| #  |                 ═════════════════════════════════════                 |  # |
+| #  |                      CERTIFICATE OF COMPLETION                        |  # |
+| #  |                 ═════════════════════════════════════                 |  # |
+| #  |                                                                       |  # |
+| #  |                 This certificate is proudly awarded to                |  # |
+| #  |                                                                       |  # |
+| #  |                            RECIPIENT NAME                             |  # |
+| #  |                                                                       |  # |
+| #  |             in recognition of successful completion of                |  # |
+| #  |                                                                       |  # |
+| #  |                    Python Backend Development Workshop                |  # |
+| #  |                             ─────────                                 |  # |
+| #  |                        Issued on: 2026-10-07                          |  # |
+| #  |                                                                       |  # |
+| #  +-----------------------------------------------------------------------+  # |
+| ############################################################################### |
++---------------------------------------------------------------------------------+
+```
+
+### Visual Specifications
+- **Dimensions**: Standard A4 Landscape ($297 \times 210\,\text{mm}$).
+- **Color Palette**:
+  - `Deep Navy` (`#1A237E`): Outer 4pt structural border, primary headings, recipient name.
+  - `Metallic Gold` (`#C9A84C`): Inner 1.5pt accent border, corner ornament squares, dividing bars.
+  - `Charcoal Grey` (`#2C3E50`): Body descriptions and timestamps.
+  - `Canvas Background` (`#F8F9FA`): Soft parchment off-white.
 
 ---
 
-## 🚀 Local Setup
+## 🗄️ Database Schema & Indexes
 
-### 1. Clone the Repository
+```
+  ┌────────────────────────────────────────────────────────┐
+  │                    generation_jobs                     │
+  ├────────────────────────────────────────────────────────┤
+  │ PK  id                 UUID                            │
+  │     status             ENUM (JobStatus) [INDEX]        │
+  │     certificate_title  VARCHAR(255)                    │
+  │     event_name         VARCHAR(255)                    │
+  │     organization_name  VARCHAR(255)                    │
+  │     issue_date         VARCHAR(20)                     │
+  │     total_recipients   INTEGER                         │
+  │     successful_count   INTEGER                         │
+  │     failed_count       INTEGER                         │
+  │     created_at         TIMESTAMPTZ                     │
+  │     started_at         TIMESTAMPTZ (NULLABLE)          │
+  │     completed_at       TIMESTAMPTZ (NULLABLE)          │
+  └───────────────────────────┬────────────────────────────┘
+                              │ 1
+                              │
+                              │ *
+  ┌───────────────────────────▼────────────────────────────┐
+  │                      certificates                      │
+  ├────────────────────────────────────────────────────────┤
+  │ PK  id                 UUID                            │
+  │ FK  job_id             UUID (ON DELETE CASCADE) [INDEX]│
+  │     recipient_name     VARCHAR(255)                    │
+  │     recipient_email    VARCHAR(255)                    │
+  │     status             ENUM (CertificateStatus)        │
+  │     file_path          VARCHAR(500) (NULLABLE)         │
+  │     error_message      TEXT (NULLABLE)                 │
+  │     created_at         TIMESTAMPTZ                     │
+  │     completed_at       TIMESTAMPTZ (NULLABLE)          │
+  ├────────────────────────────────────────────────────────┤
+  │ INDEX ix_certificates_job_id_status (job_id, status)   │
+  └────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ⚡ Quick Start
+
+### Option 1: Run with Docker Compose (Fastest)
+
 ```bash
-git clone https://github.com/your-username/bulk-certificate-generator-api.git
+# Clone the repository
+git clone https://github.com/gokul27108/bulk-certificate-generator-api.git
 cd bulk-certificate-generator-api
-```
 
-### 2. Create and Activate a Virtual Environment
+# Spin up PostgreSQL + FastAPI with a single command
+docker compose up --build
+```
+The API is now live at `http://localhost:8000` with Swagger UI at `http://localhost:8000/docs`!
+
+---
+
+### Option 2: Local Setup (Native Python)
+
+#### 1. Prerequisites
+- Python 3.12+
+- PostgreSQL 14+ (or SQLite for testing)
+
+#### 2. Virtual Environment Setup
 ```bash
 # Windows (PowerShell)
 python -m venv venv
@@ -207,25 +242,18 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Install Dependencies
+#### 3. Install Dependencies
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
----
-
-## 🌐 Environment Variables
-Create a `.env` file in the project root:
+#### 4. Environment Variables
 ```bash
-# Windows
-Copy-Item .env.example .env
-
-# Linux / macOS
+# Copy template
 cp .env.example .env
 ```
-
-Default `.env` configuration:
+*Configure `.env` if using a local PostgreSQL database:*
 ```env
 DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/certificate_db
 TEST_DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/certificate_db_test
@@ -234,61 +262,15 @@ APP_ENV=development
 DEBUG=false
 ```
 
----
-
-## 🗄️ Database Setup & Migrations
-
-Ensure PostgreSQL is running and the database exists:
-```sql
-CREATE DATABASE certificate_db;
-```
-
-Run Alembic migrations to create tables and indexes:
+#### 5. Apply Database Migrations
 ```bash
 alembic upgrade head
 ```
 
----
-
-## 🏃 Running Locally
-
-Start the development server using Uvicorn:
+#### 6. Start the Application
 ```bash
 uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-
-The application will be live at:
-- **API Base URL**: `http://localhost:8000`
-- **Health Check**: `http://localhost:8000/health`
-- **Interactive Swagger Docs**: `http://localhost:8000/docs`
-
----
-
-## 🐳 Running with Docker
-
-Run the complete stack (FastAPI + PostgreSQL) with a single command:
-```bash
-docker compose up --build
-```
-
-To run in the background (detached mode):
-```bash
-docker compose up -d
-```
-
-To stop containers:
-```bash
-docker compose down
-```
-
----
-
-## 📖 Interactive API Documentation (Swagger)
-
-FastAPI automatically serves interactive documentation:
-- **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
-- **Raw OpenAPI Schema**: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
 
 ---
 
@@ -296,37 +278,37 @@ FastAPI automatically serves interactive documentation:
 
 | Method | Endpoint | Description | Status Code |
 |---|---|---|---|
-| `GET` | `/health` | Check API and database connectivity | `200 OK` / `503 Service Unavailable` |
+| `GET` | `/health` | Health probe & DB connectivity check | `200 OK` / `503 Degraded` |
 | `POST` | `/api/v1/jobs` | Submit bulk certificate generation job | `202 Accepted` |
 | `GET` | `/api/v1/jobs/{job_id}` | Poll generation job progress and recipient status | `200 OK` / `404 Not Found` |
-| `GET` | `/api/v1/certificates/{certificate_id}` | Download generated certificate PDF | `200 OK` / `404 Not Found` / `422 Unprocessable` |
+| `GET` | `/api/v1/certificates/{certificate_id}` | Stream/download generated certificate PDF | `200 OK` / `404 Not Found` / `422 Unprocessable` |
+| `GET` | `/docs` | Interactive Swagger UI documentation | `200 OK` |
+| `GET` | `/redoc` | Interactive ReDoc documentation | `200 OK` |
 
 ---
 
-## 📤 Example Request & Response
+## 💻 Sample API Usage (cURL)
 
-### 1. Create Generation Job
-**Request:**
-```http
-POST /api/v1/jobs
-Content-Type: application/json
-
-{
-  "certificate_title": "Certificate of Completion",
-  "event_name": "Python Backend Development Workshop",
-  "organization_name": "Aero",
-  "issue_date": "2026-10-07",
-  "recipients": [
-    {
-      "name": "Gokul M",
-      "email": "gokul@example.com"
-    },
-    {
-      "name": "Rahul Kumar",
-      "email": "rahul@example.com"
-    }
-  ]
-}
+### 1. Submit a Generation Job
+```bash
+curl -X POST "http://localhost:8000/api/v1/jobs" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "certificate_title": "Certificate of Completion",
+    "event_name": "Python Backend Development Workshop",
+    "organization_name": "Aero",
+    "issue_date": "2026-10-07",
+    "recipients": [
+      {
+        "name": "Gokul M",
+        "email": "gokul@example.com"
+      },
+      {
+        "name": "Rahul Kumar",
+        "email": "rahul@example.com"
+      }
+    ]
+  }'
 ```
 
 **Response (`202 Accepted`):**
@@ -343,10 +325,9 @@ Content-Type: application/json
 
 ---
 
-### 2. Poll Job Status
-**Request:**
-```http
-GET /api/v1/jobs/4b92b67d-94e8-466a-9f5b-6f81e3c84792
+### 2. Check Job Progress
+```bash
+curl -X GET "http://localhost:8000/api/v1/jobs/4b92b67d-94e8-466a-9f5b-6f81e3c84792"
 ```
 
 **Response (`200 OK`):**
@@ -388,71 +369,20 @@ GET /api/v1/jobs/4b92b67d-94e8-466a-9f5b-6f81e3c84792
 
 ---
 
-## 📥 Certificate Retrieval
-
-When a certificate's status is `COMPLETED`, retrieve the PDF directly:
+### 3. Download Generated Certificate
 ```bash
-curl -O -J http://localhost:8000/api/v1/certificates/8f8b86e1-95fa-4df3-a129-d5fc3ab9f2b1
+curl -O -J "http://localhost:8000/api/v1/certificates/8f8b86e1-95fa-4df3-a129-d5fc3ab9f2b1"
 ```
-
-- **Headers returned**:
-  - `Content-Type: application/pdf`
-  - `Content-Disposition: attachment; filename="certificate_Gokul_M.pdf"`
-- If the certificate ID does not exist: returns `404 Not Found`.
-- If the certificate failed or is still processing: returns `422 Unprocessable Entity` with an explanatory message.
+- Saved to: `certificate_Gokul_M.pdf`
+- Validated with `%PDF-` binary magic bytes.
 
 ---
 
-## ⚡ Bulk Processing Mechanism
-- **Batch Acceptance**: The client submits up to 1,000 recipients in a single POST request.
-- **Immediate Return**: The parent job and all initial certificate entries are persisted in a single bulk transaction. The endpoint dispatches `process_job_background` via FastAPI's `BackgroundTasks` and returns immediately.
-- **Independent Session**: Background workers instantiate their own database session via `SessionLocal()`, ensuring the background thread does not encounter closed connection errors.
+## 🧪 Testing & Code Coverage
 
----
+Tests run against an isolated in-memory SQLite database, guaranteeing zero side effects on production data.
 
-## 🛡️ Failure Handling & Isolation
-
-Failure isolation is a core requirement of this system:
-
-```text
-Job: 100 Recipients
-├── Recipients 1 to 26  ──► SUCCESS
-├── Recipient 27        ──► ERROR (Isolated, logged, marked FAILED)
-└── Recipients 28 to 100 ─► Continue uninterrupted!
-
-Result:
-- total: 100
-- completed: 99
-- failed: 1
-- status: COMPLETED_WITH_ERRORS
-```
-
-### How it is implemented:
-1. Each certificate generation is enclosed in an explicit `try...except` block in `app/services/job_service.py`.
-2. Any failure (e.g. disk write failure, unexpected character) triggers `cert_repo.mark_failed(cert_id, error_str)` and increments `job.failed_count`.
-3. The loop proceeds to the next recipient without interruption.
-4. When finished, if `failed_count > 0` and `successful_count > 0`, the job status transitions to `COMPLETED_WITH_ERRORS`.
-
----
-
-## ⚖️ Key Architectural Decisions
-
-1. **FastAPI over Django / Flask**:
-   - Built-in asynchronous support, native dependency injection, and automatic OpenAPI schema generation with zero extra boilerplate.
-2. **PostgreSQL + SQLAlchemy 2.0**:
-   - Native UUID support, strict ACID guarantees, and typed ORM definitions using `Mapped[...]`.
-3. **In-Process BackgroundTasks vs. Celery/Redis**:
-   - Avoids external messaging infrastructure (Redis/RabbitMQ) while fully satisfying asynchronous decoupling and remaining easy to run and debug during an interview.
-4. **ReportLab Canvas Engine**:
-   - Direct vector graphics generation without heavy headless browser runtimes (like Chromium/Puppeteer), maintaining a small memory footprint (~30MB vs 400MB+).
-
----
-
-## 🧪 Testing & Coverage
-
-The automated test suite runs on an isolated in-memory database and temporary file directory, ensuring zero impact on development or production databases.
-
-### Run All Tests
+### Run All 52 Automated Tests
 ```bash
 pytest
 ```
@@ -462,25 +392,73 @@ pytest
 pytest --cov=app --cov-report=term-missing
 ```
 
-### Test Suites Included:
-- `tests/test_create_job.py`: Job creation, 202 status, UUID generation, initial state.
-- `tests/test_validation.py`: 15 boundary cases (missing fields, blank strings, invalid emails, date parsing).
-- `tests/test_certificate_generation.py`: PDF creation, file existence, `%PDF-` header validation.
-- `tests/test_job_status.py`: Progress calculations, 404 handling, certificate listings.
-- `tests/test_failure_handling.py`: Simulated selective failures, `COMPLETED_WITH_ERRORS` verification.
-- `tests/test_certificate_retrieval.py`: PDF downloads, content headers, 404/422 responses.
+### Coverage Summary (92% Total Coverage)
+```text
+=============================== tests coverage ================================
+Name                                         Stmts   Miss  Cover   Missing
+--------------------------------------------------------------------------
+app\api\routes\certificates.py                  25      2    92%   68-73
+app\api\routes\health.py                        12      0   100%
+app\api\routes\jobs.py                          22      0   100%
+app\core\config.py                              16      0   100%
+app\core\database.py                            26     11    58%   57-61, 70-76
+app\core\logging_config.py                      17      0   100%
+app\exceptions\handlers.py                      40      4    90%   94-95, 103-104
+app\main.py                                     31      0   100%
+app\models\certificate.py                       27      1    96%   101
+app\models\generation_job.py                    36      2    94%   117, 123
+app\repositories\certificate_repository.py      48      0   100%
+app\repositories\job_repository.py              59      8    86%   66-73
+app\schemas\certificate.py                      22      0   100%
+app\schemas\job.py                              51      0   100%
+app\services\certificate_service.py             21      4    81%   44, 47, 51-56
+app\services\job_service.py                     68      9    87%   108-115, 133-134
+app\services\pdf_service.py                     19      1    95%   71
+--------------------------------------------------------------------------
+TOTAL                                          540     42    92%
+============================= 52 passed in 49.73s =============================
+```
 
 ---
 
-## 📋 Assumptions
-- Certificates use standard landscape A4 format.
-- Output files are written to the local storage directory configured via `CERTIFICATE_OUTPUT_DIR`.
-- Email addresses are validated for RFC formatting; actual email delivery is handled by downstream notification services.
+## 📬 Postman Collection
+
+Import the included Postman collection for rapid interactive testing:
+1. Open Postman.
+2. Click **Import** $\to$ Choose `postman/Bulk-Certificate-Generator.postman_collection.json`.
+3. Collection variables `baseUrl`, `jobId`, and `certificateId` are automatically parsed and populated across requests!
 
 ---
 
-## 🔮 Future Improvements
-1. **Distributed Queue**: Add Celery or ARQ with Redis for multi-node worker scaling.
-2. **Cloud Storage**: Integrate Amazon S3 or Google Cloud Storage with signed download URLs.
-3. **Webhooks**: Provide a `callback_url` parameter to notify client systems when jobs finish.
-4. **Rate Limiting**: Add Redis-based token bucket rate limiting for job submission endpoints.
+## 📂 Project Structure
+
+```text
+bulk-certificate-generator-api/
+├── app/
+│   ├── main.py                     # Application startup, lifespan, and route wiring
+│   ├── api/routes/                 # Endpoints: jobs.py, certificates.py, health.py
+│   ├── core/                       # config.py, database.py, logging_config.py
+│   ├── exceptions/                 # handlers.py (Centralized HTTP error handling)
+│   ├── models/                     # generation_job.py, certificate.py (SQLAlchemy 2.x)
+│   ├── repositories/               # job_repository.py, certificate_repository.py
+│   ├── schemas/                    # job.py, certificate.py (Pydantic v2 validation)
+│   └── services/                   # job_service.py, certificate_service.py, pdf_service.py
+├── templates/
+│   └── certificate_template.py     # ReportLab layout, borders, and styles
+├── generated_certificates/         # Local PDF storage directory (.gitignore)
+├── tests/                          # 52 automated tests covering all 6 mandatory areas
+├── postman/                        # Postman Collection v2.1
+├── alembic/                        # Database migrations
+├── Dockerfile                      # Production container image
+├── docker-compose.yml              # PostgreSQL + FastAPI Compose setup
+├── REQUIREMENTS_CHECKLIST.md       # Traceability matrix mapping all requirements
+├── INTERVIEW_PREPARATION.md        # Comprehensive 30-question technical interview guide
+└── README.md                       # Documentation
+```
+
+---
+
+## 👨‍💻 Author & Repository
+
+- **Author**: Gokul M
+- **Repository**: [https://github.com/gokul27108/bulk-certificate-generator-api](https://github.com/gokul27108/bulk-certificate-generator-api)
