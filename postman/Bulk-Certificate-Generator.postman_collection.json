@@ -1,0 +1,157 @@
+{
+  "info": {
+    "_postman_id": "7b8e1a2f-9c0d-4e8f-b123-c98f86f7a123",
+    "name": "Bulk Certificate Generator API",
+    "description": "Production-quality REST API collection for generating, tracking, and retrieving bulk PDF certificates with failure isolation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Checks server health and database connectivity."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Create Generation Job",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.job_id) {",
+                  "    pm.collectionVariables.set('jobId', jsonData.job_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"certificate_title\": \"Certificate of Completion\",\n  \"event_name\": \"Python Backend Development Workshop\",\n  \"organization_name\": \"Aero\",\n  \"issue_date\": \"2026-10-07\",\n  \"recipients\": [\n    {\n      \"name\": \"Gokul M\",\n      \"email\": \"gokul@example.com\"\n    },\n    {\n      \"name\": \"Rahul Kumar\",\n      \"email\": \"rahul@example.com\"\n    },\n    {\n      \"name\": \"Priya Sharma\",\n      \"email\": \"priya@example.com\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jobs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "jobs"]
+            },
+            "description": "Submits a bulk certificate generation request. Accepts immediately (HTTP 202) and returns a job_id."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Job Status & Progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.certificates && jsonData.certificates.length > 0) {",
+                  "    var completedCert = jsonData.certificates.find(c => c.status === 'COMPLETED');",
+                  "    if (completedCert) {",
+                  "        pm.collectionVariables.set('certificateId', completedCert.certificate_id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jobs/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "jobs", "{{jobId}}"]
+            },
+            "description": "Polls the job status to view total, completed, failed, progress percentage, and recipient certificate states."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Certificates",
+      "item": [
+        {
+          "name": "Download Certificate PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/pdf"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/certificates/{{certificateId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "certificates", "{{certificateId}}"]
+            },
+            "description": "Downloads the generated PDF certificate for a completed certificate record."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "jobId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "certificateId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
